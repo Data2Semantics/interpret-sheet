@@ -70,12 +70,15 @@ load_stream_(Stream, Location, Options) :-
 	->  Options1 = [format(DefFormat)|Options]
 	;   Options1 = Options
 	),
-	rdf_guess_format(Stream, Format, Options1),
-	rdf_load(stream(Stream),
-		 [ format(Format),
-		   base_uri(Base)
-		 | Options
-		 ]).
+	(   rdf_guess_format(Stream, Format, Options1)
+	->  print_message(informational, rdf_load_any(rdf(Base, Format))),
+	    rdf_load(stream(Stream),
+		     [ format(Format),
+		       base_uri(Base)
+		     | Options
+		     ])
+	;   print_message(warning, rdf_load_any(no_rdf(Base)))
+	).
 
 %%	location_base(+Location, -BaseURI) is det.
 %
@@ -130,3 +133,15 @@ rdf_content_type('text/rdf+n3',		  turtle).	% Bit dubious
 rdf_content_type('text/html',		  html).
 rdf_content_type('application/xhtml+xml', xhtml).
 
+
+		 /*******************************
+		 *	      MESSAGES		*
+		 *******************************/
+
+:- multifile
+	prolog:message//1.
+
+prolog:message(rdf_load_any(rdf(Base, Format))) -->
+	[ 'RDF in ~q: ~q', [Base, Format] ].
+prolog:message(rdf_load_any(no_rdf(Base))) -->
+	[ 'No RDF in ~q'-[Base] ].
