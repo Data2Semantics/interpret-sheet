@@ -20,24 +20,34 @@ sheet_concepts(_Sheets, Options) :-
 	_{help:true} :< Options, !,
 	usage,
 	halt.
-sheet_concepts(_Sheets, Options) :-
-	_{pl:true} :< Options, !.
 sheet_concepts([], _Options) :- !,
 	format(user_error, 'ERROR: no spreadsheet provided~n~n', []),
 	usage,
 	halt(1).
 sheet_concepts(Sheets, Options) :-
-	(   true == Options.get(trace)
-	->  gtrace
-	;   true
-	),
 	concurrent(2,
 	    [ load_ontologies(Options),
 	      load_sheets(Sheets)
 	    ], []),
-	extract_concepts(Options),
-	report(Options),
-	halt.
+	(   _{pl:true} :< Options
+	->  true
+	;   setup_debug(Options),
+	    extract_concepts(Options),
+	    report(Options),
+	    halt
+	).
+
+setup_debug(Options) :-
+	(   _{trace:true} :< Options
+	->  gtrace
+	;   true
+	),
+	(   _{spy:Spy} :< Options
+	->  term_to_atom(Term, Spy),
+	    gspy(Term)
+	;   true
+	).
+
 
 start_tmon(Options) :-
 	_{tmon:true} :< Options, !,
@@ -54,7 +64,8 @@ usage :-
 	format(user_error, '  --ontology=src      Load ontologies from source~n', []),
 	format(user_error, '  --tmon              Show actvity window~n', []),
 	format(user_error, '  --pl                Start toplevel~n', []),
-	format(user_error, '  --trace             Run debugger~n', []).
+	format(user_error, '  --trace             Run debugger~n', []),
+	format(user_error, '  --spy=predicate     Spy predicate~n', []).
 
 %%	set_config(+Options) is det.
 %
