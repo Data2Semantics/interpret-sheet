@@ -129,9 +129,14 @@ list_concepts(Concepts) :-
 			]).
 
 label_triple(Concepts, S,P,O,_G) :-
-	rdf_equal(skos:prefLabel, P),
 	member(S, Concepts),
-	rdf(S, P, O).
+	(   rdf_equal(skos:prefLabel, P),
+	    rdf(S, P, O)
+	->  true
+	;   rdf(S, skos:altLabel, literal(lang(en, Label)))
+	->  rdf_equal(skos:altLabel, P),
+	    O = literal(lang(en, Label))
+	).
 
 
 selected_concepts(Concepts) :-
