@@ -22,6 +22,10 @@ sheet_concepts(_Sheets, Options) :-
 	halt.
 sheet_concepts(_Sheets, Options) :-
 	_{pl:true} :< Options, !.
+sheet_concepts([], _Options) :- !,
+	format(user_error, 'ERROR: no spreadsheet provided~n~n', []),
+	usage,
+	halt(1).
 sheet_concepts(Sheets, Options) :-
 	(   true == Options.get(trace)
 	->  gtrace
