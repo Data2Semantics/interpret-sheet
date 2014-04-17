@@ -73,7 +73,10 @@ agro_label(Label,AgroConcept):-
 % For translating AgroVoc concept-URI back to AgroVoc label, use this
 % function instead of "agro_label", to avoid redundant results.
 agro_pref_label(Label,AgroConcept):-
-	rdf(AgroConcept,skos:prefLabel,literal(lang(en,Label))),
+	(   rdf(AgroConcept,skos:prefLabel,literal(lang(en,Label)))
+	->  true
+	;   rdf(AgroConcept,skos:altLabel,literal(lang(en,Label)))
+	),
 	candidate_concept(AgroConcept).
 
 
