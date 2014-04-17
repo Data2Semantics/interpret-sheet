@@ -131,7 +131,10 @@ assert_agro_concept(Label,AgroConcept):-
 
 parent(X,Y):- rdf(X,skos:broader,Y).
 
-ancestor(X,Y)  :-parent(X,Z), rdf_reachable(Z, skos:broader, Y).
+ancestor(X,Y)  :-
+	parent(X,Z),
+	rdf_reachable(Z, skos:broader, Y),
+	once(agro_pref_label(_Label, Y)).
 
 
 % Find all Agrovoc ancestors (concept URI) associated with the Agrovoc
